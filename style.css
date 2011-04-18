@@ -1,0 +1,46 @@
+.profile-header{background-color:#ddf0f8;padding:15px;min-height:90px;margin:0 0 15px;}
+.profile-header h1{margin:0 0 4px;padding:0;font-size:180%;border:none;}
+.profile-header .image{float:left;margin:0 10px 10px 0;}
+.profile-header .image img{border:5px solid #fff;padding:0;}
+.profile-header p{font-size:130%;}
+.profile-header p.title{margin: 0; margin-bottom:6px;}
+.profile-header .demographic-info {color:#666;font-size:130%;margin:4px 0 6px 0;padding:0;}
+.profile-header .demographic-info dt{display:none;}
+.profile-header .demographic-info dd{display:inline;margin:0;padding:0 4px 0 0;}
+.profile-header .demographic-info dd.industry{border-left:1px solid #666;padding-left:6px;}
+.at{font-weight:normal!important;}
+div.section {aaamargin-top: 30px;}
+#overview{margin:0;margin-left:10px;padding:10px;padding-top:0;border:1px solid #c8e4f1;border-width:0 1px 2px 0;background:#fff;overflow:hidden;clear:both;}
+#overview dt{font-size:130%;color:#666;margin:0;width:13em;height:1em;padding-top: 10px;}
+#overview dd {border-bottom: 1px dotted #666;overflow:hidden;margin:0;padding:0;padding-left: 13em;margin-top:-1.3em;padding-bottom:10px;}
+#overview dd ul, #overview p {margin:0; padding:0; list-style-position:inside;}
+#overview dd:last-child{border: none;margin-bottom:-6px;}
+#overview dd.last{border: none;margin-bottom:-6px;}
+#overview ul.current{font-weight:bold;}
+#overview p,#overview li{font-size:130%;}
+#profile-summary p {margin:0;margin-left:15px;}
+.section dt{color:#666;margin:0;width:13em;height:1em;padding-top: 10px;}
+.section dd {border-bottom: 1px dotted #666;overflow:hidden;margin:0;padding:0;padding-left: 13em;margin-top:-1.1em;padding-bottom:10px;}
+.section dl dd ul, .section dl dd p {margin:0; padding:0;}
+.section dd:last-child{border: none;margin-bottom:-6px;}
+.section dd.last{border: none;margin-bottom:-6px;}
+ul.competencies h3{font-weight:normal;display:inline;}
+ul.competencies .proficiency{color:#666;}
+ul.documents {list-style-type:none;margin:0;padding:0;margin-left:15px;}
+ul.documents h3 {margin:0;padding:0;}
+ul.documents ul {list-style-type:none;margin:0;padding:0;color:#666;}
+ul.documents li {padding-bottom:5px;margin-bottom: 5px; border-bottom: 1px dotted #666;}
+ul.documents li:last-child {margin:0;padding:0;border: none;}
+ul.documents li li {margin:0;padding:0;border:none;}
+#profile-education h3, #profile-education h4, #profile-education p.period {margin:0;padding:0;}
+#profile-education h4 {font-weight:normal;font-size:100%;}
+#profile-education p.period {color:#666}
+
+#profile-experience h3, #profile-experience h4, #profile-experience p {margin:0;padding:0;}
+#profile-experience h4 {font-weight:normal;font-size:100%;}
+#profile-experience p.orgstats {color:#999}
+#profile-experience p.period {color:#666}
+#profile-experience p.desc {margin-top:5px;}
+
+.position {margin-bottom:5px;padding-bottom:5px;border-bottom: 1px dotted #666;margin-left:15px;}
+.position:last-child {margin-bottom:0;padding:0;border:none;}
