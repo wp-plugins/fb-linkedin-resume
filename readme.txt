@@ -3,8 +3,8 @@ Contributors: Fabrizio Balliano
 Donate link: http://fabrizioballiano.net/fb-linkedin-resume/
 Tags: linkedIn, resume, CV, curriculum vitae, curriculum, vitae
 Requires at least: 2.9.0
-Tested up to: 3.1.0
-Stable tag: 1.0
+Tested up to: 3.1.2
+Stable tag: 1.1
 
 Publish all your LinkedIn public profile (or just some selected parts)
 on your blog.
@@ -38,6 +38,9 @@ Supported shortcodes:
 * fb_linkedin_resume_languages: prints the "languages" section.
 * fb_linkedin_resume_education: prints the "education" section.
 * fb_linkedin_resume_additional: prints the "additional" section.
+
+Every shortcode accept a "lang" parameter that will allow you to override
+default profile language (also if set in the plugin options).
 
 Every shortcode (except the "full" one) accept a "title" parameter that will
 allow you to customize the section title (translating it or changing it the
@@ -75,6 +78,9 @@ released under the MIT license.
 2. A part of the resulting page
 
 == Changelog ==
+
+= 1.1 =
+* lang param was added to all shortcodes.
 
 = 1.0 =
 * First public release.

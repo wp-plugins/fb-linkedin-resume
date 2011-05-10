@@ -3,7 +3,7 @@
 Plugin Name: FB LinkedIn Resume
 Plugin URI: http://fabrizioballiano.net
 Description: Publish all your LinkedIn public profile (or just some selected parts) on your blog.
-Version: 1.0
+Version: 1.1
 Author: Fabrizio Balliano
 Author URI: http://fabrizioballiano.net
 */
@@ -45,13 +45,19 @@ function fb_linkedin_resume_get_admin_options()
 	return get_option(fb_linkedin_resume_admin_options_name);
 }
 
-function fb_linkedin_resume_get_resume()
+function fb_linkedin_resume_get_resume($params)
 {
-	if (isset($GLOBALS["__fb_linkedin_resume_cache"])) {
-		return $GLOBALS["__fb_linkedin_resume_cache"];
+	$options = fb_linkedin_resume_get_admin_options();
+
+	if (isset($params["lang"])) {
+		$options["fb_linkedin_resume_url"] = explode("/", $options["fb_linkedin_resume_url"]);
+		$options["fb_linkedin_resume_url"] = "{$options["fb_linkedin_resume_url"][0]}/{$params["lang"]}";
 	}
 
-	$options = fb_linkedin_resume_get_admin_options();
+	if (isset($GLOBALS["__fb_linkedin_resume_cache"]) and isset($GLOBALS["__fb_linkedin_resume_cache"][$options["fb_linkedin_resume_url"]])) {
+		return $GLOBALS["__fb_linkedin_resume_cache"][$options["fb_linkedin_resume_url"]];
+	}
+
 	require_once dirname(__FILE__) . "/simple_html_dom.php";
 	$dom = file_get_html("http://www.linkedin.com/in/{$options["fb_linkedin_resume_url"]}");
 
@@ -93,7 +99,7 @@ function fb_linkedin_resume_get_resume()
 		$tmp->innertext = str_replace("{$fullname}'s ", "", $tmp->innertext);
 	}
 
-	$GLOBALS["__fb_linkedin_resume_cache"] = $dom;
+	$GLOBALS["__fb_linkedin_resume_cache"][$options["fb_linkedin_resume_url"]] = $dom;
 	return $dom;
 }
 
