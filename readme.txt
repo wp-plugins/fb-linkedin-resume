@@ -35,6 +35,7 @@ Supported shortcodes:
 * fb_linkedin_resume_summary: prints the "summary" section.
 * fb_linkedin_resume_experience: prints the "experience" section.
 * fb_linkedin_resume_certifications: prints the "certifications" section.
+* fb_linkedin_resume_skills: prints the "skills" section.
 * fb_linkedin_resume_languages: prints the "languages" section.
 * fb_linkedin_resume_education: prints the "education" section.
 * fb_linkedin_resume_additional: prints the "additional" section.
@@ -78,6 +79,9 @@ released under the MIT license.
 2. A part of the resulting page
 
 == Changelog ==
+
+= 1.2 =
+* fb_linkedin_resume_skills shortcode was added.
 
 = 1.1 =
 * lang param was added to all shortcodes.

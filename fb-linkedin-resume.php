@@ -36,6 +36,7 @@ add_shortcode("fb_linkedin_resume_header", "fb_linkedin_resume_header");
 add_shortcode("fb_linkedin_resume_summary", "fb_linkedin_resume_summary");
 add_shortcode("fb_linkedin_resume_experience", "fb_linkedin_resume_experience");
 add_shortcode("fb_linkedin_resume_certifications", "fb_linkedin_resume_certifications");
+add_shortcode("fb_linkedin_resume_skills", "fb_linkedin_resume_skills");
 add_shortcode("fb_linkedin_resume_languages", "fb_linkedin_resume_languages");
 add_shortcode("fb_linkedin_resume_education", "fb_linkedin_resume_education");
 add_shortcode("fb_linkedin_resume_additional", "fb_linkedin_resume_additional");
@@ -114,12 +115,14 @@ function fb_linkedin_resume_full($params) {
 	$experience = $resume->find("#profile-experience");
 	$education = $resume->find("#profile-education");
 	$certifications = $resume->find("#profile-certifications");
+	$skills = $resume->find("#profile-skills");
 	$languages = $resume->find("#profile-languages");
 	$additional = $resume->find("#profile-additional");
 	$skills = $resume->find("#profile-skills");
 
 	return $header[0] . $summary[0] . $experience[0] . $certifications[0] .
-		 $languages[0] . $skills[0] . $education[0] . $additional[0];
+		 $skills[0] . $languages[0] . $skills[0] . $education[0] .
+		 $additional[0];
 }
 
 function fb_linkedin_resume_header($params) {
@@ -185,6 +188,20 @@ function fb_linkedin_resume_certifications($params) {
 		$h2[0]->innertext = $params["title"];
 	}
 	return $certifications;
+}
+
+function fb_linkedin_resume_skills($params) {
+	wp_register_style("fb_linkedin_resume", fb_linkedin_resume_path . "style.css", false, fb_linkedin_resume_version, "all");
+	wp_print_styles("fb_linkedin_resume");
+	
+	$resume = fb_linkedin_resume_get_resume($params);
+	$skills = $resume->find("#profile-skills");
+	$skills = $skills[0];
+	if (isset($params["title"])) {
+		$h2 = $skills->find("h2");
+		$h2[0]->innertext = $params["title"];
+	}
+	return $skills;
 }
 
 function fb_linkedin_resume_languages($params) {
