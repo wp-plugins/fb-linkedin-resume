@@ -1,12 +1,11 @@
 <?php
 /*
 Plugin Name: FB LinkedIn Resume
-Plugin URI: http://fabrizioballiano.net
+Plugin URI: http://fabrizioballiano.net/fb-linkedin-resume
 Description: Publish all your LinkedIn public profile (or just some selected parts) on your blog.
-Version: 1.3
+Version: 2.0
 Author: Fabrizio Balliano
 Author URI: http://fabrizioballiano.net
-Plugin URI: http://fabrizioballiano.net/fb-linkedin-resume
 */
 
 
@@ -50,6 +49,20 @@ function fb_linkedin_resume_get_admin_options()
 function fb_linkedin_resume_get_resume($params)
 {
 	$options = fb_linkedin_resume_get_admin_options();
+
+	if (isset($params["user"])) {
+		$tmp_lang = explode("/", $options["fb_linkedin_resume_url"]);
+		if (isset($tmp_lang[1])) {
+			$tmp_lang = $tmp_lang[1];
+		} else {
+			unset($tmp_lang);
+		}
+		
+		$options["fb_linkedin_resume_url"] = $params["user"];
+		if (isset($tmp_lang)) {
+			$options["fb_linkedin_resume_url"] .= "/$tmp_lang";
+		}
+	}
 
 	if (isset($params["lang"])) {
 		$options["fb_linkedin_resume_url"] = explode("/", $options["fb_linkedin_resume_url"]);
@@ -106,24 +119,14 @@ function fb_linkedin_resume_get_resume($params)
 }
 
 function fb_linkedin_resume_full($params) {
-	wp_register_style("fb_linkedin_resume", fb_linkedin_resume_path . "style.css", false, fb_linkedin_resume_version, "all");
-	wp_print_styles("fb_linkedin_resume");
-	
-	$resume = fb_linkedin_resume_get_resume($params);
-
-	$header = $resume->find(".profile-header");
-	$summary = $resume->find("#profile-summary");
-	$experience = $resume->find("#profile-experience");
-	$education = $resume->find("#profile-education");
-	$certifications = $resume->find("#profile-certifications");
-	$skills = $resume->find("#profile-skills");
-	$languages = $resume->find("#profile-languages");
-	$additional = $resume->find("#profile-additional");
-	$skills = $resume->find("#profile-skills");
-
-	return $header[0] . $summary[0] . $experience[0] . $certifications[0] .
-		 $skills[0] . $languages[0] . $skills[0] . $education[0] .
-		 $additional[0];
+	return fb_linkedin_resume_header($params) . 
+		fb_linkedin_resume_summary($params) . 
+		fb_linkedin_resume_experience($params) . 
+		fb_linkedin_resume_certifications($params) .
+		fb_linkedin_resume_skills($params) . 
+		fb_linkedin_resume_languages($params) . 
+		fb_linkedin_resume_education($params) . 
+		fb_linkedin_resume_additional($params);
 }
 
 function fb_linkedin_resume_header($params) {
@@ -141,6 +144,8 @@ function fb_linkedin_resume_summary($params) {
 	
 	$resume = fb_linkedin_resume_get_resume($params);
 	$summary = $resume->find("#profile-summary");
+	if (empty($summary)) return "";
+
 	$summary = $summary[0];
 	if (isset($params["title"])) {
 		$h2 = $summary->find("h2");
@@ -155,6 +160,8 @@ function fb_linkedin_resume_experience($params) {
 	
 	$resume = fb_linkedin_resume_get_resume($params);
 	$experience = $resume->find("#profile-experience");
+	if (empty($experience)) return "";
+
 	$experience = $experience[0];
 	if (isset($params["title"])) {
 		$h2 = $experience->find("h2");
@@ -169,6 +176,8 @@ function fb_linkedin_resume_education($params) {
 	
 	$resume = fb_linkedin_resume_get_resume($params);
 	$education = $resume->find("#profile-education");
+	if (empty($education)) return "";
+
 	$education = $education[0];
 	if (isset($params["title"])) {
 		$h2 = $education->find("h2");
@@ -183,6 +192,8 @@ function fb_linkedin_resume_certifications($params) {
 	
 	$resume = fb_linkedin_resume_get_resume($params);
 	$certifications = $resume->find("#profile-certifications");
+	if (empty($certifications)) return "";
+
 	$certifications = $certifications[0];
 	if (isset($params["title"])) {
 		$h2 = $certifications->find("h2");
@@ -197,11 +208,18 @@ function fb_linkedin_resume_skills($params) {
 	
 	$resume = fb_linkedin_resume_get_resume($params);
 	$skills = $resume->find("#profile-skills");
+	if (empty($skills)) return "";
+
 	$skills = $skills[0];
 	if (isset($params["title"])) {
 		$h2 = $skills->find("h2");
 		$h2[0]->innertext = $params["title"];
 	}
+
+	foreach ($skills->find("li span") as $link) {
+		$link->innertext = $link->plaintext;
+	}
+
 	return $skills;
 }
 
@@ -211,6 +229,8 @@ function fb_linkedin_resume_languages($params) {
 	
 	$resume = fb_linkedin_resume_get_resume($params);
 	$languages = $resume->find("#profile-languages");
+	if (empty($languages)) return "";
+
 	$languages = $languages[0];
 	if (isset($params["title"])) {
 		$h2 = $languages->find("h2");
@@ -225,6 +245,8 @@ function fb_linkedin_resume_additional($params) {
 	
 	$resume = fb_linkedin_resume_get_resume($params);
 	$additional = $resume->find("#profile-additional");
+	if (empty($additional)) return "";
+
 	$additional = $additional[0];
 	if (isset($params["title"])) {
 		$h2 = $additional->find("h2");
