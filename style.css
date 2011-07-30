@@ -1,3 +1,7 @@
+.entry ul li::before {content: "";}
+html > body .entry ul {text-indent: 0;}
+html > body .entry li {margin-left: 0;}
+
 .profile-header{background-color:#ddf0f8;padding:15px;min-height:90px;margin:0 0 15px;}
 .profile-header h1{margin:0 0 4px;padding:0;font-size:180%;border:none;}
 .profile-header .image{float:left;margin:0 10px 10px 0;}
@@ -32,6 +36,10 @@ ul.documents ul {list-style-type:none;margin:0;padding:0;color:#666;}
 ul.documents li {padding-bottom:5px;margin-bottom: 5px; border-bottom: 1px dotted #666;}
 ul.documents li:last-child {margin:0;padding:0;border: none;}
 ul.documents li li {margin:0;padding:0;border:none;}
+ul.documents .specifics {padding-left: 0;}
+ul.documents .specifics li {display: inline;padding-right: 5px;}
+ul.documents .specifics li:first-child::before {content: '';padding-right: 0;}
+ul.documents .specifics li::before, .draggable ul.documents .specifics li::before {content: '\007C';padding-right: 5px;}
 #profile-education h3, #profile-education h4, #profile-education p.period {margin:0;padding:0;}
 #profile-education h4 {font-weight:normal;font-size:100%;}
 #profile-education p.period {color:#666}

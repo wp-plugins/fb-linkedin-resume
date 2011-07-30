@@ -3,7 +3,7 @@
 Plugin Name: FB LinkedIn Resume
 Plugin URI: http://fabrizioballiano.net/fb-linkedin-resume
 Description: Publish all your LinkedIn public profile (or just some selected parts) on your blog.
-Version: 2.0
+Version: 2.1
 Author: Fabrizio Balliano
 Author URI: http://fabrizioballiano.net
 */
@@ -27,7 +27,7 @@ Author URI: http://fabrizioballiano.net
 
 
 define("fb_linkedin_resume_path", WP_PLUGIN_URL . "/" . str_replace(basename( __FILE__), "", plugin_basename(__FILE__)));
-define("fb_linkedin_resume_version", "1.0");
+define("fb_linkedin_resume_version", "2.1");
 $plugin_dir = basename(dirname(__FILE__));
 
 define("fb_linkedin_resume_admin_options_name", "fb_linkedin_resume_admin_options");
@@ -37,6 +37,7 @@ add_shortcode("fb_linkedin_resume_summary", "fb_linkedin_resume_summary");
 add_shortcode("fb_linkedin_resume_experience", "fb_linkedin_resume_experience");
 add_shortcode("fb_linkedin_resume_certifications", "fb_linkedin_resume_certifications");
 add_shortcode("fb_linkedin_resume_skills", "fb_linkedin_resume_skills");
+add_shortcode("fb_linkedin_resume_publications", "fb_linkedin_resume_publications");
 add_shortcode("fb_linkedin_resume_languages", "fb_linkedin_resume_languages");
 add_shortcode("fb_linkedin_resume_education", "fb_linkedin_resume_education");
 add_shortcode("fb_linkedin_resume_additional", "fb_linkedin_resume_additional");
@@ -124,6 +125,7 @@ function fb_linkedin_resume_full($params) {
 		fb_linkedin_resume_experience($params) . 
 		fb_linkedin_resume_certifications($params) .
 		fb_linkedin_resume_skills($params) . 
+		fb_linkedin_resume_publications($params) . 
 		fb_linkedin_resume_languages($params) . 
 		fb_linkedin_resume_education($params) . 
 		fb_linkedin_resume_additional($params);
@@ -221,6 +223,35 @@ function fb_linkedin_resume_skills($params) {
 	}
 
 	return $skills;
+}
+
+function fb_linkedin_resume_publications($params) {
+	wp_register_style("fb_linkedin_resume", fb_linkedin_resume_path . "style.css", false, fb_linkedin_resume_version, "all");
+	wp_print_styles("fb_linkedin_resume");
+	
+	$resume = fb_linkedin_resume_get_resume($params);
+	$publications = $resume->find("#profile-publications");
+	if (empty($publications)) return "";
+
+	$publications = $publications[0];
+	if (isset($params["title"])) {
+		$h2 = $publications->find("h2");
+		$h2[0]->innertext = $params["title"];
+	}
+
+	foreach ($publications->find("li.publication a") as $link) {
+		$link->href = "http://www.linkedin.com/{$link->href}";
+	}
+
+	foreach ($publications->find("div.attribution a") as $link) {
+		$link->outertext = $link->plaintext;
+	}
+
+	foreach ($publications->find("div.summary script") as $script) {
+		$script->outertext = "";
+	}
+
+	return $publications;
 }
 
 function fb_linkedin_resume_languages($params) {
