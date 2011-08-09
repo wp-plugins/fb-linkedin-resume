@@ -3,7 +3,7 @@
 Plugin Name: FB LinkedIn Resume
 Plugin URI: http://fabrizioballiano.net/fb-linkedin-resume
 Description: Publish all your LinkedIn public profile (or just some selected parts) on your blog.
-Version: 2.1
+Version: 2.2
 Author: Fabrizio Balliano
 Author URI: http://fabrizioballiano.net
 */
@@ -27,7 +27,7 @@ Author URI: http://fabrizioballiano.net
 
 
 define("fb_linkedin_resume_path", WP_PLUGIN_URL . "/" . str_replace(basename( __FILE__), "", plugin_basename(__FILE__)));
-define("fb_linkedin_resume_version", "2.1");
+define("fb_linkedin_resume_version", "2.2");
 $plugin_dir = basename(dirname(__FILE__));
 
 define("fb_linkedin_resume_admin_options_name", "fb_linkedin_resume_admin_options");
@@ -137,7 +137,13 @@ function fb_linkedin_resume_header($params) {
 	
 	$resume = fb_linkedin_resume_get_resume($params);
 	$header = $resume->find(".profile-header");
-	return $header[0];
+	$header = $header[0];
+	
+	foreach ($header->find("dd.websites a") as $link) {
+		$link->href = "http://www.linkedin.com{$link->href}";
+	}
+	
+	return $header;
 }
 
 function fb_linkedin_resume_summary($params) {
@@ -291,6 +297,10 @@ function fb_linkedin_resume_additional($params) {
 		$dt = $additional->find("dt.honors");
 		$dt[0]->innertext = $params["title_honors"];
 	}
+	foreach ($additional->find("dd.websites a") as $link) {
+		$link->href = "http://www.linkedin.com/{$link->href}";
+	}
+	
 	return $additional;
 }
 

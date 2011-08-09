@@ -4,7 +4,7 @@ Donate link: http://fabrizioballiano.net/fb-linkedin-resume/
 Tags: linkedIn, resume, CV, curriculum vitae, curriculum, vitae
 Requires at least: 2.9.0
 Tested up to: 3.2.1
-Stable tag: 2.1
+Stable tag: 2.2
 
 Publish all your LinkedIn public profile (or just some selected parts)
 on your blog.
@@ -84,6 +84,9 @@ released under the MIT license.
 2. A part of the resulting page
 
 == Changelog ==
+
+= 2.2 =
+* redirects to external websites were fixed.
 
 = 2.1 =
 * fb_linkedin_resume_publications shortcode was added.
