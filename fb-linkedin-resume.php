@@ -3,7 +3,7 @@
 Plugin Name: FB LinkedIn Resume
 Plugin URI: http://fabrizioballiano.net/fb-linkedin-resume
 Description: Publish all your LinkedIn public profile (or just some selected parts) on your blog.
-Version: 2.2
+Version: 2.3
 Author: Fabrizio Balliano
 Author URI: http://fabrizioballiano.net
 */
@@ -27,7 +27,7 @@ Author URI: http://fabrizioballiano.net
 
 
 define("fb_linkedin_resume_path", WP_PLUGIN_URL . "/" . str_replace(basename( __FILE__), "", plugin_basename(__FILE__)));
-define("fb_linkedin_resume_version", "2.2");
+define("fb_linkedin_resume_version", "2.3");
 $plugin_dir = basename(dirname(__FILE__));
 
 define("fb_linkedin_resume_admin_options_name", "fb_linkedin_resume_admin_options");
@@ -75,7 +75,8 @@ function fb_linkedin_resume_get_resume($params)
 	}
 
 	require_once dirname(__FILE__) . "/simple_html_dom.php";
-	$dom = file_get_html("http://www.linkedin.com/in/{$options["fb_linkedin_resume_url"]}");
+	$linkedin_html = wp_remote_get("http://www.linkedin.com/in/{$options["fb_linkedin_resume_url"]}");
+	$dom = str_get_html($linkedin_html["body"]);
 
 	// removing groups
 	foreach ($dom->find("#profile-additional .pubgroups") as $tmp) {
@@ -104,7 +105,6 @@ function fb_linkedin_resume_get_resume($params)
 	foreach ($dom->find(".profile-header .section-title") as $tmp) {
 		$tmp->outertext = "";
 	}
-
 
 	$name = $dom->find(".given-name");
 	$surname = $dom->find(".family-name");
