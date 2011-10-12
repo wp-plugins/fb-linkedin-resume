@@ -4,7 +4,7 @@ Donate link: http://fabrizioballiano.net/fb-linkedin-resume/
 Tags: linkedIn, resume, CV, curriculum vitae, curriculum, vitae
 Requires at least: 2.9.0
 Tested up to: 3.2.1
-Stable tag: 2.3
+Stable tag: 2.4
 
 Publish all your LinkedIn public profile (or just some selected parts)
 on your blog.
@@ -58,6 +58,10 @@ title_honors), eg:
 [fb_linkedin_resume_additional title="Informazioni aggiuntive"
 title_interests="Interessi" title_honors="Premi e riconoscimenti"].
 
+Notes:
+* when using a full profile URL instead of a profile username, the "lang"
+  param won't work!
+
 == Installation ==
 
 1. Download
@@ -84,6 +88,14 @@ released under the MIT license.
 2. A part of the resulting page
 
 == Changelog ==
+
+= 2.4 =
+* complete profile URL is not supported instead of the username, thus it should solve all
+  problems with people with strange profile urls.
+* LinkedIn gzdeflated content support was added and double error checked.
+* skills are now rendered as a sort of "tag cloud" like the new linkedn design.
+* profile name replacement routines were rewritten cause some users have double spaces
+  between name and surname.
 
 = 2.3 =
 * WordPress' internal function "wp_remote_get" is now used to download LinkedIn's page, this should

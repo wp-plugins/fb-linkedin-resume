@@ -3,7 +3,7 @@
 Plugin Name: FB LinkedIn Resume
 Plugin URI: http://fabrizioballiano.net/fb-linkedin-resume
 Description: Publish all your LinkedIn public profile (or just some selected parts) on your blog.
-Version: 2.3
+Version: 2.4
 Author: Fabrizio Balliano
 Author URI: http://fabrizioballiano.net
 */
@@ -69,14 +69,33 @@ function fb_linkedin_resume_get_resume($params)
 		$options["fb_linkedin_resume_url"] = explode("/", $options["fb_linkedin_resume_url"]);
 		$options["fb_linkedin_resume_url"] = "{$options["fb_linkedin_resume_url"][0]}/{$params["lang"]}";
 	}
+	
+	if (strtolower(substr($options["fb_linkedin_resume_url"], 0, 4)) != "http") {
+		$options["fb_linkedin_resume_url"] = "http://www.linkedin.com/in/{$options["fb_linkedin_resume_url"]}";
+	}
 
 	if (isset($GLOBALS["__fb_linkedin_resume_cache"]) and isset($GLOBALS["__fb_linkedin_resume_cache"][$options["fb_linkedin_resume_url"]])) {
 		return $GLOBALS["__fb_linkedin_resume_cache"][$options["fb_linkedin_resume_url"]];
 	}
-
+	
 	require_once dirname(__FILE__) . "/simple_html_dom.php";
-	$linkedin_html = wp_remote_get("http://www.linkedin.com/in/{$options["fb_linkedin_resume_url"]}");
+	$linkedin_html = wp_remote_get($options["fb_linkedin_resume_url"]);
+	if (!is_array($linkedin_html)) {
+		wp_die("FB Linkedin Resume: unable to connect to LinkedIn website.");
+	}
 	$dom = str_get_html($linkedin_html["body"]);
+	
+	$body_check = $dom->find("body");
+	if (empty($body_check)) {
+		// we've a weirdly compressed HTML, let's try gzinflate
+		$linkedin_html["body"] = gzinflate($linkedin_html["body"]);
+		$dom = str_get_html($linkedin_html["body"]);
+	}
+	
+	$body_check = $dom->find("body");
+	if (empty($body_check)) {
+		wp_die("FB Linkedin Resume: we're sorry but we can't correctly download your LinkedIn profile.");
+	}
 
 	// removing groups
 	foreach ($dom->find("#profile-additional .pubgroups") as $tmp) {
@@ -107,12 +126,13 @@ function fb_linkedin_resume_get_resume($params)
 	}
 
 	$name = $dom->find(".given-name");
+	$name = $name[0]->innertext;
 	$surname = $dom->find(".family-name");
-	$fullname = "{$name[0]->innertext} {$surname[0]->innertext}";
+	$surname = $surname[0]->innertext;
 
 	// removing all "fullname's "
 	foreach ($dom->find("h2") as $tmp) {
-		$tmp->innertext = str_replace("{$fullname}'s ", "", $tmp->innertext);
+		$tmp->innertext = preg_replace("/[ ]*{$name}[ ]+{$surname}'s[ ]*/", "", $tmp->innertext);
 	}
 
 	$GLOBALS["__fb_linkedin_resume_cache"][$options["fb_linkedin_resume_url"]] = $dom;
@@ -317,8 +337,9 @@ function fb_linkedin_resume_display_admin_page()
 	<div class="wrap">
 		<h2>FB LinkedIn Resume options</h2>
 		<form method="post" action="{$_SERVER["REQUEST_URI"]}">
-			Just complete your LinkedIn profile URL,<br />if you want you can make it language aware using username/language syntax<br /><br />
-			http://www.linkedin.com/in/<input type="text" name="fb_linkedin_resume_url" value="{$options["fb_linkedin_resume_url"]}"/><br /><br />
+			Just complete your LinkedIn profile URL,<br />if you want you can make it language aware using username/language syntax.<br />
+			If you want you can also type your full profile URL.<br /><br />
+			http://www.linkedin.com/in/<input type="text" name="fb_linkedin_resume_url" value="{$options["fb_linkedin_resume_url"]}" style="width:300px" /><br /><br />
 			<input type="submit" value="Save" />
 		</form>
 	</div>

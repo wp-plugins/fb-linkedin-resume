@@ -13,7 +13,7 @@ html > body .entry li {margin-left: 0;}
 .profile-header .demographic-info dd{display:inline;margin:0;padding:0 4px 0 0;}
 .profile-header .demographic-info dd.industry{border-left:1px solid #666;padding-left:6px;}
 .at{font-weight:normal!important;}
-div.section {aaamargin-top: 30px;}
+
 #overview{margin:0;margin-left:10px;padding:10px;padding-top:0;border:1px solid #c8e4f1;border-width:0 1px 2px 0;background:#fff;overflow:hidden;clear:both;}
 #overview dt{font-size:130%;color:#666;margin:0;width:13em;height:1em;padding-top: 10px;}
 #overview dd {border-bottom: 1px dotted #666;overflow:hidden;margin:0;padding:0;padding-left: 13em;margin-top:-1.3em;padding-bottom:10px;}
@@ -52,3 +52,7 @@ ul.documents .specifics li::before, .draggable ul.documents .specifics li::befor
 
 .position {margin-bottom:5px;padding-bottom:5px;border-bottom: 1px dotted #666;margin-left:15px;}
 .position:last-child {margin-bottom:0;padding:0;border:none;}
+
+#skills-list {list-style: none; padding: 0;}
+#skills-list li {display: inline-block;margin: 2px 1px 2px 0;zoom: 1; padding: 0;}
+#skills-list span {padding:2px 12px;font-size:13px;background-color:#ECECEC;color:#069;-moz-border-radius:5px;-webkit-border-radius:5px;border-radius:5px;display:inline-block;}
