@@ -4,7 +4,7 @@ Donate link: http://fabrizioballiano.net/fb-linkedin-resume/
 Tags: linkedIn, resume, CV, curriculum vitae, curriculum, vitae
 Requires at least: 2.9.0
 Tested up to: 3.2.1
-Stable tag: 2.6
+Stable tag: 2.7
 
 Publish all your LinkedIn public profile (or just some selected parts)
 on your blog.
@@ -39,6 +39,8 @@ Supported shortcodes:
 * fb_linkedin_resume_publications: prints the "publications" section.
 * fb_linkedin_resume_languages: prints the "languages" section.
 * fb_linkedin_resume_education: prints the "education" section.
+* fb_linkedin_resume_courses: prints the "courses" section.
+* fb_linkedin_resume_organizations: prints the "organizations" section.
 * fb_linkedin_resume_additional: prints the "additional" section.
 
 Every shortcode accept a "user" parameter that will allow you to override
@@ -88,6 +90,12 @@ released under the MIT license.
 2. A part of the resulting page
 
 == Changelog ==
+
+= 2.7 =
+* accept-language header is automatically sent to linkedin, according to the
+  "lang" parameter
+* fb_linkedin_resume_courses shortcode was added.
+* fb_linkedin_resume_organizations shortcode was added.
 
 = 2.6 =
 * skills are now printed with the proficiency (you've to mouse over the skill

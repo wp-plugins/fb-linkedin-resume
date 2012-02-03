@@ -3,7 +3,7 @@
 Plugin Name: FB LinkedIn Resume
 Plugin URI: http://fabrizioballiano.net/fb-linkedin-resume
 Description: Publish all your LinkedIn public profile (or just some selected parts) on your blog.
-Version: 2.6
+Version: 2.7
 Author: Fabrizio Balliano
 Author URI: http://fabrizioballiano.net
 */
@@ -40,6 +40,8 @@ add_shortcode("fb_linkedin_resume_skills", "fb_linkedin_resume_skills");
 add_shortcode("fb_linkedin_resume_publications", "fb_linkedin_resume_publications");
 add_shortcode("fb_linkedin_resume_languages", "fb_linkedin_resume_languages");
 add_shortcode("fb_linkedin_resume_education", "fb_linkedin_resume_education");
+add_shortcode("fb_linkedin_resume_courses", "fb_linkedin_resume_courses");
+add_shortcode("fb_linkedin_resume_organizations", "fb_linkedin_resume_organizations");
 add_shortcode("fb_linkedin_resume_additional", "fb_linkedin_resume_additional");
 
 function fb_linkedin_resume_get_admin_options()
@@ -50,6 +52,7 @@ function fb_linkedin_resume_get_admin_options()
 function fb_linkedin_resume_get_resume($params)
 {
 	$options = fb_linkedin_resume_get_admin_options();
+	$wp_remote_get_args = array();
 
 	if (isset($params["user"])) {
 		$tmp_lang = explode("/", $options["fb_linkedin_resume_url"]);
@@ -66,6 +69,7 @@ function fb_linkedin_resume_get_resume($params)
 	}
 
 	if (isset($params["lang"])) {
+		$wp_remote_get_args["headers"] = array("accept-language" => $params["lang"]);
 		$options["fb_linkedin_resume_url"] = explode("/", $options["fb_linkedin_resume_url"]);
 		$options["fb_linkedin_resume_url"] = "{$options["fb_linkedin_resume_url"][0]}/{$params["lang"]}";
 	}
@@ -81,8 +85,8 @@ function fb_linkedin_resume_get_resume($params)
 	if (!function_exists("str_get_html")) {
 		require_once dirname(__FILE__) . "/simple_html_dom.php";
 	}
-	
-	$linkedin_html = wp_remote_get($options["fb_linkedin_resume_url"]);
+
+	$linkedin_html = wp_remote_get($options["fb_linkedin_resume_url"], $wp_remote_get_args);
 	if (!is_array($linkedin_html)) {
 		wp_die("FB Linkedin Resume: unable to connect to LinkedIn website.");
 	}
@@ -136,9 +140,14 @@ function fb_linkedin_resume_get_resume($params)
 	$surname = $dom->find(".family-name");
 	$surname = $surname[0]->innertext;
 
-	// removing all "fullname's "
+	// removing all "fullname's " (only works with english)
 	foreach ($dom->find("h2") as $tmp) {
 		$tmp->innertext = preg_replace("/[ ]*{$name}[ ]+{$surname}'s[ ]*/", "", $tmp->innertext);
+	}
+	
+	// pruning some spaces
+	foreach ($dom->find("ul.specifics li") as $tmp) {
+		$tmp->innertext = trim($tmp->innertext);
 	}
 
 	$GLOBALS["__fb_linkedin_resume_cache"][$options["fb_linkedin_resume_url"]] = $dom;
@@ -146,14 +155,16 @@ function fb_linkedin_resume_get_resume($params)
 }
 
 function fb_linkedin_resume_full($params) {
-	return fb_linkedin_resume_header($params) . 
-		fb_linkedin_resume_summary($params) . 
-		fb_linkedin_resume_experience($params) . 
+	return fb_linkedin_resume_header($params) .
+		fb_linkedin_resume_summary($params) .
+		fb_linkedin_resume_experience($params) .
 		fb_linkedin_resume_certifications($params) .
-		fb_linkedin_resume_skills($params) . 
-		fb_linkedin_resume_publications($params) . 
-		fb_linkedin_resume_languages($params) . 
-		fb_linkedin_resume_education($params) . 
+		fb_linkedin_resume_skills($params) .
+		fb_linkedin_resume_publications($params) .
+		fb_linkedin_resume_languages($params) .
+		fb_linkedin_resume_education($params) .
+		fb_linkedin_resume_courses($params) .
+		fb_linkedin_resume_organizations($params) .
 		fb_linkedin_resume_additional($params);
 }
 
@@ -210,6 +221,38 @@ function fb_linkedin_resume_education($params) {
 	
 	$resume = fb_linkedin_resume_get_resume($params);
 	$education = $resume->find("#profile-education");
+	if (empty($education)) return "";
+
+	$education = $education[0];
+	if (isset($params["title"])) {
+		$h2 = $education->find("h2");
+		$h2[0]->innertext = $params["title"];
+	}
+	return $education;
+}
+
+function fb_linkedin_resume_courses($params) {
+	wp_register_style("fb_linkedin_resume", fb_linkedin_resume_path . "style.css", false, fb_linkedin_resume_version, "all");
+	wp_print_styles("fb_linkedin_resume");
+
+	$resume = fb_linkedin_resume_get_resume($params);
+	$education = $resume->find("#profile-courses");
+	if (empty($education)) return "";
+
+	$education = $education[0];
+	if (isset($params["title"])) {
+		$h2 = $education->find("h2");
+		$h2[0]->innertext = $params["title"];
+	}
+	return $education;
+}
+
+function fb_linkedin_resume_organizations($params) {
+	wp_register_style("fb_linkedin_resume", fb_linkedin_resume_path . "style.css", false, fb_linkedin_resume_version, "all");
+	wp_print_styles("fb_linkedin_resume");
+
+	$resume = fb_linkedin_resume_get_resume($params);
+	$education = $resume->find("#profile-organizations");
 	if (empty($education)) return "";
 
 	$education = $education[0];
