@@ -27,7 +27,7 @@ Author URI: http://fabrizioballiano.net
 
 
 define("fb_linkedin_resume_path", WP_PLUGIN_URL . "/" . str_replace(basename( __FILE__), "", plugin_basename(__FILE__)));
-define("fb_linkedin_resume_version", "2.6");
+define("fb_linkedin_resume_version", "2.7.1");
 $plugin_dir = basename(dirname(__FILE__));
 
 define("fb_linkedin_resume_admin_options_name", "fb_linkedin_resume_admin_options");
@@ -87,8 +87,18 @@ function fb_linkedin_resume_get_resume($params)
 	}
 
 	$linkedin_html = wp_remote_get($options["fb_linkedin_resume_url"], $wp_remote_get_args);
-	if (!is_array($linkedin_html)) {
-		wp_die("FB Linkedin Resume: unable to connect to LinkedIn website.");
+	if (is_wp_error($linkedin_html)) {
+		$errors = $linkedin_html->get_error_messages();
+		$message = "FB Linkedin Resume: unable to connect to LinkedIn website<br />";
+		switch (count($errors)) {
+			case 1 :
+				$message .= "{$errors[0]}";
+				break;
+			default :
+				$message .= "<ul>\n\t\t<li>" . join( "</li>\n\t\t<li>", $errors ) . "</li>\n\t</ul>";
+				break;
+		}
+		wp_die($message);
 	}
 	$dom = str_get_html($linkedin_html["body"]);
 	

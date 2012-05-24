@@ -4,7 +4,7 @@ Donate link: http://fabrizioballiano.net/fb-linkedin-resume/
 Tags: linkedIn, resume, CV, curriculum vitae, curriculum, vitae
 Requires at least: 2.9.0
 Tested up to: 3.2.1
-Stable tag: 2.7
+Stable tag: 2.7.1
 
 Publish all your LinkedIn public profile (or just some selected parts)
 on your blog.
@@ -90,6 +90,9 @@ released under the MIT license.
 2. A part of the resulting page
 
 == Changelog ==
+
+= 2.7.1 =
+* error message is now more verbose.
 
 = 2.7 =
 * accept-language header is automatically sent to linkedin, according to the
