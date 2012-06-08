@@ -91,6 +91,9 @@ released under the MIT license.
 
 == Changelog ==
 
+= 2.7.2 =
+* LinkedIn links were removed from "header" section
+
 = 2.7.1 =
 * error message is now more verbose.
 
