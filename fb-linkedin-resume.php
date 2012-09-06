@@ -27,7 +27,7 @@ Author URI: http://fabrizioballiano.net
 
 
 define("fb_linkedin_resume_path", WP_PLUGIN_URL . "/" . str_replace(basename( __FILE__), "", plugin_basename(__FILE__)));
-define("fb_linkedin_resume_version", "2.7.2");
+define("fb_linkedin_resume_version", "2.7.3");
 $plugin_dir = basename(dirname(__FILE__));
 
 define("fb_linkedin_resume_admin_options_name", "fb_linkedin_resume_admin_options");
@@ -52,7 +52,9 @@ function fb_linkedin_resume_get_admin_options()
 function fb_linkedin_resume_get_resume($params)
 {
 	$options = fb_linkedin_resume_get_admin_options();
-	$wp_remote_get_args = array();
+	$wp_remote_get_args = array(
+		"user-agent" => "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/21.0.1180.89 Safari/537.1"
+	);
 
 	if (isset($params["user"])) {
 		$tmp_lang = explode("/", $options["fb_linkedin_resume_url"]);
