@@ -3,7 +3,7 @@
 Plugin Name: FB LinkedIn Resume
 Plugin URI: http://fabrizioballiano.net/fb-linkedin-resume
 Description: Publish all your LinkedIn public profile (or just some selected parts) on your blog.
-Version: 2.7.2
+Version: 2.7.3
 Author: Fabrizio Balliano
 Author URI: http://fabrizioballiano.net
 */
