@@ -41,6 +41,7 @@ Supported shortcodes:
 * fb_linkedin_resume_education: prints the "education" section.
 * fb_linkedin_resume_courses: prints the "courses" section.
 * fb_linkedin_resume_organizations: prints the "organizations" section.
+* fb_linkedin_resume_projects: prints the "projects" section.
 * fb_linkedin_resume_additional: prints the "additional" section.
 
 Every shortcode accept a "user" parameter that will allow you to override
@@ -90,6 +91,10 @@ released under the MIT license.
 2. A part of the resulting page
 
 == Changelog ==
+
+= 2.7.4 =
+* Support for "projects" section was added.
+* a little bugfix about double slash was fixed (thanks to "gav")
 
 = 2.7.3 =
 * A desktop user-agent was forced when downloading LinkedIn profile.
@@ -153,4 +158,4 @@ released under the MIT license.
 
 == Copyright ==
 
-Copyright 2011 Fabrizio Balliano (email: fabrizio@fabrizioballiano.it)
+Copyright Fabrizio Balliano (email: fabrizio@fabrizioballiano.it)

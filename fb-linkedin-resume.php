@@ -3,7 +3,7 @@
 Plugin Name: FB LinkedIn Resume
 Plugin URI: http://fabrizioballiano.net/fb-linkedin-resume
 Description: Publish all your LinkedIn public profile (or just some selected parts) on your blog.
-Version: 2.7.3
+Version: 2.7.4
 Author: Fabrizio Balliano
 Author URI: http://fabrizioballiano.net
 */
@@ -27,7 +27,7 @@ Author URI: http://fabrizioballiano.net
 
 
 define("fb_linkedin_resume_path", WP_PLUGIN_URL . "/" . str_replace(basename( __FILE__), "", plugin_basename(__FILE__)));
-define("fb_linkedin_resume_version", "2.7.3");
+define("fb_linkedin_resume_version", "2.7.4");
 $plugin_dir = basename(dirname(__FILE__));
 
 define("fb_linkedin_resume_admin_options_name", "fb_linkedin_resume_admin_options");
@@ -43,6 +43,7 @@ add_shortcode("fb_linkedin_resume_education", "fb_linkedin_resume_education");
 add_shortcode("fb_linkedin_resume_courses", "fb_linkedin_resume_courses");
 add_shortcode("fb_linkedin_resume_organizations", "fb_linkedin_resume_organizations");
 add_shortcode("fb_linkedin_resume_additional", "fb_linkedin_resume_additional");
+add_shortcode("fb_linkedin_resume_projects", "fb_linkedin_resume_projects");
 
 function fb_linkedin_resume_get_admin_options()
 {
@@ -182,6 +183,7 @@ function fb_linkedin_resume_full($params) {
 		fb_linkedin_resume_education($params) .
 		fb_linkedin_resume_courses($params) .
 		fb_linkedin_resume_organizations($params) .
+		fb_linkedin_resume_projects($params) .
 		fb_linkedin_resume_additional($params);
 }
 
@@ -399,6 +401,23 @@ function fb_linkedin_resume_additional($params) {
 	}
 	
 	return $additional;
+}
+
+function fb_linkedin_resume_projects($params) {
+	wp_register_style("fb_linkedin_resume", fb_linkedin_resume_path . "style.css", false, fb_linkedin_resume_version, "all");
+	wp_print_styles("fb_linkedin_resume");
+
+	$resume = fb_linkedin_resume_get_resume($params);
+	$projects = $resume->find("#profile-projects");
+	if (empty($projects)) return "";
+
+	$projects = $projects[0];
+	if (isset($params["title"])) {
+		$h2 = $projects->find("h2");
+		$h2[0]->innertext = $params["title"];
+	}
+
+	return $projects;
 }
 
 function fb_linkedin_resume_display_admin_page()
