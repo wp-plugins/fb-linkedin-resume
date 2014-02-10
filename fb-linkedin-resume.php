@@ -3,13 +3,13 @@
 Plugin Name: FB LinkedIn Resume
 Plugin URI: http://fabrizioballiano.net/fb-linkedin-resume
 Description: Publish all your LinkedIn public profile (or just some selected parts) on your blog.
-Version: 2.7.4
+Version: 2.7.5
 Author: Fabrizio Balliano
 Author URI: http://fabrizioballiano.net
 */
 
 
-/*  Copyright 2011 Fabrizio Balliano (email: fabrizio@fabrizioballiano.it)
+/*  Copyright 2011-2014 Fabrizio Balliano (email: fabrizio@fabrizioballiano.it)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License, version 2, as 
@@ -27,7 +27,7 @@ Author URI: http://fabrizioballiano.net
 
 
 define("fb_linkedin_resume_path", WP_PLUGIN_URL . "/" . str_replace(basename( __FILE__), "", plugin_basename(__FILE__)));
-define("fb_linkedin_resume_version", "2.7.4");
+define("fb_linkedin_resume_version", "2.7.5");
 $plugin_dir = basename(dirname(__FILE__));
 
 define("fb_linkedin_resume_admin_options_name", "fb_linkedin_resume_admin_options");
@@ -108,7 +108,7 @@ function fb_linkedin_resume_get_resume($params)
 	$body_check = $dom->find("body");
 	if (empty($body_check)) {
 		// we've a weirdly compressed HTML, let's try gzinflate
-		$linkedin_html["body"] = gzinflate($linkedin_html["body"]);
+		$linkedin_html["body"] = fb_linkedin_resume_decompress($linkedin_html["body"]);
 		$dom = str_get_html($linkedin_html["body"]);
 	}
 	
@@ -445,6 +445,18 @@ EOF;
 function fb_linkedin_resume_admin()
 {
 	add_options_page("FB LinkedIn Resume", "FB LinkedIn Resume", "manage_options", "fb-linkedin-resume", "fb_linkedin_resume_display_admin_page");
+}
+
+function fb_linkedin_resume_decompress($compressed)
+{
+    if (false !== ($decompressed = @gzinflate($compressed))) return $decompressed;
+    if (false !== ($decompressed = WP_Http_Encoding::compatible_gzinflate($compressed))) return $decompressed;
+    if (false !== ($decompressed = @gzuncompress($compressed))) return $decompressed;
+    if (function_exists('gzdecode')) {
+        $decompressed = @gzdecode($compressed);
+        if (false !== $decompressed) return $decompressed;
+    }
+    return $compressed;
 }
 
 add_action("admin_menu", "fb_linkedin_resume_admin");

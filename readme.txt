@@ -3,8 +3,8 @@ Contributors: Fabrizio Balliano
 Donate link: http://fabrizioballiano.net/fb-linkedin-resume/
 Tags: linkedIn, resume, CV, curriculum vitae, curriculum, vitae
 Requires at least: 2.9.0
-Tested up to: 3.4.1
-Stable tag: 2.7.4
+Tested up to: 3.8.1
+Stable tag: 2.7.5
 
 Publish all your LinkedIn public profile (or just some selected parts)
 on your blog.
@@ -91,6 +91,10 @@ released under the MIT license.
 2. A part of the resulting page
 
 == Changelog ==
+
+= 2.7.5 =
+* LinkedIn profile download routine updated, trying to solve the problem
+  between some hosts and some LinkedIn profiles
 
 = 2.7.4 =
 * Support for "projects" section was added.
