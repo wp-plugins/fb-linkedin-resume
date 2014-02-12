@@ -3,7 +3,7 @@
 Plugin Name: FB LinkedIn Resume
 Plugin URI: http://fabrizioballiano.net/fb-linkedin-resume
 Description: Publish all your LinkedIn public profile (or just some selected parts) on your blog.
-Version: 2.7.5
+Version: 2.8.0
 Author: Fabrizio Balliano
 Author URI: http://fabrizioballiano.net
 */
@@ -27,7 +27,7 @@ Author URI: http://fabrizioballiano.net
 
 
 define("fb_linkedin_resume_path", WP_PLUGIN_URL . "/" . str_replace(basename( __FILE__), "", plugin_basename(__FILE__)));
-define("fb_linkedin_resume_version", "2.7.5");
+define("fb_linkedin_resume_version", "2.8.0");
 $plugin_dir = basename(dirname(__FILE__));
 
 define("fb_linkedin_resume_admin_options_name", "fb_linkedin_resume_admin_options");
@@ -52,70 +52,81 @@ function fb_linkedin_resume_get_admin_options()
 
 function fb_linkedin_resume_get_resume($params)
 {
-	$options = fb_linkedin_resume_get_admin_options();
-	$wp_remote_get_args = array(
-		"user-agent" => "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/21.0.1180.89 Safari/537.1"
-	);
+    $options = fb_linkedin_resume_get_admin_options();
+    if (!function_exists("str_get_html")) {
+        require_once dirname(__FILE__) . "/simple_html_dom.php";
+    }
 
-	if (isset($params["user"])) {
-		$tmp_lang = explode("/", $options["fb_linkedin_resume_url"]);
-		if (isset($tmp_lang[1])) {
-			$tmp_lang = $tmp_lang[1];
-		} else {
-			unset($tmp_lang);
-		}
+    if ($options["fb_linkedin_resume_source"]) {
+        $dom = str_get_html($options["fb_linkedin_resume_source"]);
 		
-		$options["fb_linkedin_resume_url"] = $params["user"];
-		if (isset($tmp_lang)) {
-			$options["fb_linkedin_resume_url"] .= "/$tmp_lang";
+		// check if it's the right page
+		$header = $dom->find(".profile-header");
+		$header = $header[0];
+		if (!$header) {
+			wp_die("FB LinkedIn resume has been configured to use the cached LinkedIn HTML (configured via plugin settings) but the provided HTML is not valid (it has to be copied without being logged in).");
 		}
-	}
+    } else {
+        $wp_remote_get_args = array(
+            "user-agent" => "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/21.0.1180.89 Safari/537.1"
+        );
 
-	if (isset($params["lang"])) {
-		$wp_remote_get_args["headers"] = array("accept-language" => $params["lang"]);
-		$options["fb_linkedin_resume_url"] = explode("/", $options["fb_linkedin_resume_url"]);
-		$options["fb_linkedin_resume_url"] = "{$options["fb_linkedin_resume_url"][0]}/{$params["lang"]}";
-	}
-	
-	if (strtolower(substr($options["fb_linkedin_resume_url"], 0, 4)) != "http") {
-		$options["fb_linkedin_resume_url"] = "http://www.linkedin.com/in/{$options["fb_linkedin_resume_url"]}";
-	}
+        if (isset($params["user"])) {
+            $tmp_lang = explode("/", $options["fb_linkedin_resume_url"]);
+            if (isset($tmp_lang[1])) {
+                $tmp_lang = $tmp_lang[1];
+            } else {
+                unset($tmp_lang);
+            }
 
-	if (isset($GLOBALS["__fb_linkedin_resume_cache"]) and isset($GLOBALS["__fb_linkedin_resume_cache"][$options["fb_linkedin_resume_url"]])) {
-		return $GLOBALS["__fb_linkedin_resume_cache"][$options["fb_linkedin_resume_url"]];
-	}
-	
-	if (!function_exists("str_get_html")) {
-		require_once dirname(__FILE__) . "/simple_html_dom.php";
-	}
+            $options["fb_linkedin_resume_url"] = $params["user"];
+            if (isset($tmp_lang)) {
+                $options["fb_linkedin_resume_url"] .= "/$tmp_lang";
+            }
+        }
 
-	$linkedin_html = wp_remote_get($options["fb_linkedin_resume_url"], $wp_remote_get_args);
-	if (is_wp_error($linkedin_html)) {
-		$errors = $linkedin_html->get_error_messages();
-		$message = "FB Linkedin Resume: unable to connect to LinkedIn website<br />";
-		switch (count($errors)) {
-			case 1 :
-				$message .= "{$errors[0]}";
-				break;
-			default :
-				$message .= "<ul>\n\t\t<li>" . join( "</li>\n\t\t<li>", $errors ) . "</li>\n\t</ul>";
-				break;
-		}
-		wp_die($message);
-	}
-	$dom = str_get_html($linkedin_html["body"]);
-	
-	$body_check = $dom->find("body");
-	if (empty($body_check)) {
-		// we've a weirdly compressed HTML, let's try gzinflate
-		$linkedin_html["body"] = fb_linkedin_resume_decompress($linkedin_html["body"]);
-		$dom = str_get_html($linkedin_html["body"]);
-	}
-	
-	$body_check = $dom->find("body");
-	if (empty($body_check)) {
-		wp_die("FB Linkedin Resume: we're sorry but we can't correctly download your LinkedIn profile.");
-	}
+        if (isset($params["lang"])) {
+            $wp_remote_get_args["headers"] = array("accept-language" => $params["lang"]);
+            $options["fb_linkedin_resume_url"] = explode("/", $options["fb_linkedin_resume_url"]);
+            $options["fb_linkedin_resume_url"] = "{$options["fb_linkedin_resume_url"][0]}/{$params["lang"]}";
+        }
+
+        if (strtolower(substr($options["fb_linkedin_resume_url"], 0, 4)) != "http") {
+            $options["fb_linkedin_resume_url"] = "http://www.linkedin.com/in/{$options["fb_linkedin_resume_url"]}";
+        }
+
+        if (isset($GLOBALS["__fb_linkedin_resume_cache"]) and isset($GLOBALS["__fb_linkedin_resume_cache"][$options["fb_linkedin_resume_url"]])) {
+            return $GLOBALS["__fb_linkedin_resume_cache"][$options["fb_linkedin_resume_url"]];
+        }
+
+        $linkedin_html = wp_remote_get($options["fb_linkedin_resume_url"], $wp_remote_get_args);
+        if (is_wp_error($linkedin_html)) {
+            $errors = $linkedin_html->get_error_messages();
+            $message = "FB Linkedin Resume: unable to connect to LinkedIn website<br />";
+            switch (count($errors)) {
+                case 1 :
+                    $message .= "{$errors[0]}";
+                    break;
+                default :
+                    $message .= "<ul>\n\t\t<li>" . join( "</li>\n\t\t<li>", $errors ) . "</li>\n\t</ul>";
+                    break;
+            }
+            wp_die($message);
+        }
+        $dom = str_get_html($linkedin_html["body"]);
+
+        $body_check = $dom->find("body");
+        if (empty($body_check)) {
+            // we've a weirdly compressed HTML, let's try gzinflate
+            $linkedin_html["body"] = fb_linkedin_resume_decompress($linkedin_html["body"]);
+            $dom = str_get_html($linkedin_html["body"]);
+        }
+
+        $body_check = $dom->find("body");
+        if (empty($body_check)) {
+            wp_die("FB Linkedin Resume: we're sorry but we can't correctly download your LinkedIn profile.");
+        }
+    }
 
 	// removing linkedin links from header
 	foreach ($dom->find(".profile-header .join-linkedin") as $tmp) {
@@ -167,6 +178,7 @@ function fb_linkedin_resume_get_resume($params)
 	foreach ($dom->find("ul.specifics li") as $tmp) {
 		$tmp->innertext = trim($tmp->innertext);
 	}
+	
 
 	$GLOBALS["__fb_linkedin_resume_cache"][$options["fb_linkedin_resume_url"]] = $dom;
 	return $dom;
@@ -424,7 +436,9 @@ function fb_linkedin_resume_display_admin_page()
 {
 	if (isset($_REQUEST['fb_linkedin_resume_url'])) {
 		$options = array();
-		$options["fb_linkedin_resume_url"] = $_REQUEST["fb_linkedin_resume_url"];
+		$options["fb_linkedin_resume_url"] = trim($_REQUEST["fb_linkedin_resume_url"]);
+        $options["fb_linkedin_resume_source"] = trim($_REQUEST["fb_linkedin_resume_source"]);
+		$options = stripslashes_deep($options);
 		update_option(fb_linkedin_resume_admin_options_name, $options);
 	}
 	$options = fb_linkedin_resume_get_admin_options();
@@ -435,7 +449,31 @@ function fb_linkedin_resume_display_admin_page()
 		<form method="post" action="{$_SERVER["REQUEST_URI"]}">
 			Just complete your LinkedIn profile URL,<br />if you want you can make it language aware using username/language syntax.<br />
 			If you want you can also type your full profile URL.<br /><br />
+			Some examples of valid imput values:<br/>
+			<ul style="list-style-type: disc; list-style-position:inside;">
+			    <li>yourusername</li>
+			    <li>yourusername/en</li>
+			    <li>http://www.linkedin.com/in/yourusername</li>
+			    <li>http://www.linkedin.com/in/yourusername/en</li>
+			</ul>
 			http://www.linkedin.com/in/<input type="text" name="fb_linkedin_resume_url" value="{$options["fb_linkedin_resume_url"]}" style="width:300px" /><br /><br />
+            <br /><br />
+			If you have problems with the plugin and you receive an error like "Impossible to download your LinkedIn profile"
+			you should:
+			<ul style="list-style-type: disc; list-style-position:inside;">
+			    <li>visit your linkedin profile using an anonymous browser window (or without being logged in)</li>
+			    <li>view the source code of the page (check your browser documentation in order to do that)</li>
+			    <li>copy all the HTML source code of the page</li>
+			    <li>paste it all in the following textarea</li>
+			</ul>
+			If you fill it, your profile data will be read from this textarea instead of downloaded from LinkedIn every time
+			(it will solve the download problem and act as a cache system) but:
+			<ul style="list-style-type: disc; list-style-position:inside;">
+				<li>Remember that using this textarea will completely disable the "user" param for every shortcode.</li>
+				<li>Remember that using this textarea will avoid your website to show multiple linkedin profiles.</li>
+				<li>Remember that you'll have to update this textarea if you modify your LinkedIn profile page.</li>
+			</ul>
+			<textarea type="text" name="fb_linkedin_resume_source" class="large_text" style="min-width:300px" rows="10">{$options["fb_linkedin_resume_source"]}</textarea><br /><br />
 			<input type="submit" value="Save" />
 		</form>
 	</div>

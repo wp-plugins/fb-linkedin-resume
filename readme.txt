@@ -92,6 +92,12 @@ released under the MIT license.
 
 == Changelog ==
 
+= 2.8.0 =
+* If the plugin has problems downloading your LinkedIn profile now you can
+  go to the plugin' settings page and paste the HTML source of your LinkedIn
+  profile. It will also act as a cache.
+* DOM parsing library was updated to version 1.5
+
 = 2.7.5 =
 * LinkedIn profile download routine updated, trying to solve the problem
   between some hosts and some LinkedIn profiles
