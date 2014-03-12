@@ -3,7 +3,7 @@
 Plugin Name: FB LinkedIn Resume
 Plugin URI: http://fabrizioballiano.net/fb-linkedin-resume
 Description: Publish all your LinkedIn public profile (or just some selected parts) on your blog.
-Version: 2.8.0
+Version: 2.8.1
 Author: Fabrizio Balliano
 Author URI: http://fabrizioballiano.net
 */
@@ -27,7 +27,7 @@ Author URI: http://fabrizioballiano.net
 
 
 define("fb_linkedin_resume_path", WP_PLUGIN_URL . "/" . str_replace(basename( __FILE__), "", plugin_basename(__FILE__)));
-define("fb_linkedin_resume_version", "2.8.0");
+define("fb_linkedin_resume_version", "2.8.1");
 $plugin_dir = basename(dirname(__FILE__));
 
 define("fb_linkedin_resume_admin_options_name", "fb_linkedin_resume_admin_options");
@@ -428,6 +428,10 @@ function fb_linkedin_resume_projects($params) {
 		$h2 = $projects->find("h2");
 		$h2[0]->innertext = $params["title"];
 	}
+
+    foreach ($resume->find("div.attribution a") as $link) {
+        $link->href = "http://www.linkedin.com{$link->href}";
+    }
 
 	return $projects;
 }
