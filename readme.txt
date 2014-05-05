@@ -3,8 +3,8 @@ Contributors: Fabrizio Balliano
 Donate link: http://fabrizioballiano.net/fb-linkedin-resume/
 Tags: linkedIn, resume, CV, curriculum vitae, curriculum, vitae
 Requires at least: 2.9.0
-Tested up to: 3.8.1
-Stable tag: 2.8.1
+Tested up to: 3.9.0
+Stable tag: 2.9.0
 
 Publish all your LinkedIn public profile (or just some selected parts)
 on your blog.
@@ -75,9 +75,21 @@ Notes:
 
 == Upgrade Notice ==
 
-Due to the implementation, there should be no problems during future upgrades.
+There should be no problems during future upgrades.
 
 == Frequently Asked Questions ==
+
+= Where is the LinkedIn's HTML saved in cache =
+
+In the wp-content/cache/fb_linkedin_resume folder.
+
+= How is the LinkedIn's HTML saved in cache =
+
+Every profile's HTML is saved as a different cache file.
+The file name is the md5 of the profile url.
+If you want to manually save a cache file be sure to browse
+your LinkedIn profile in an anonymous browser window (or
+anyway not being logged in).
 
 = How the LinkedIn DOM parsing is done? =
 
@@ -91,6 +103,11 @@ released under the MIT license.
 2. A part of the resulting page
 
 == Changelog ==
+
+= 2.9.0 =
+* A new cache system was implemented, saving LinkedIn's HTML in the wordpress' cache
+  directory, thus it should avoid temporary slow-downs/problems between your server
+  and LinkedIn's ones.
 
 = 2.8.1 =
 * A bug with "projects" section was solved (links to other project members' profile).
