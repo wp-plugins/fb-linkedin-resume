@@ -3,7 +3,7 @@
 Plugin Name: FB LinkedIn Resume
 Plugin URI: http://fabrizioballiano.net/fb-linkedin-resume
 Description: Publish all your LinkedIn public profile (or just some selected parts) on your blog.
-Version: 2.9.0
+Version: 2.9.1
 Author: Fabrizio Balliano
 Author URI: http://fabrizioballiano.net
 */
@@ -25,11 +25,10 @@ Author URI: http://fabrizioballiano.net
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-
 define("fb_linkedin_resume_path", WP_PLUGIN_URL . "/" . str_replace(basename(__FILE__), "", plugin_basename(__FILE__)));
 define("fb_linkedin_resume_version", "2.9.0");
 define("fb_linkedin_resume_cache_dir", dirname(
-        dirname(dirname(__FILE__))
+        dirname(dirname(realpath(__FILE__)))
     ) . DIRECTORY_SEPARATOR . "cache" . DIRECTORY_SEPARATOR . "fb_linkedin_resume");
 define("fb_linkedin_resume_admin_options_name", "fb_linkedin_resume_admin_options");
 
@@ -61,7 +60,7 @@ function fb_linkedin_resume_get_resume($params)
         require_once dirname(__FILE__) . "/simple_html_dom.php";
     }
 
-    if ($options["fb_linkedin_resume_source"]) {
+    if (@$options["fb_linkedin_resume_source"]) {
         $dom = str_get_html($options["fb_linkedin_resume_source"]);
 
         // check if it's the right page
@@ -191,24 +190,7 @@ function fb_linkedin_resume_get_resume($params)
 
 
     $GLOBALS["__fb_linkedin_resume_cache"][$options["fb_linkedin_resume_url"]] = $dom;
-
-    // save to cache
-    if (!is_dir(fb_linkedin_resume_cache_dir)) {
-        $check = mkdir(fb_linkedin_resume_cache_dir, 0777, true);
-        if (!$check) {
-            wp_die("FB Linkedin Resume: unable to create directory " . fb_linkedin_resume_cache_dir);
-        }
-    }
-    $fp = fopen(fb_linkedin_resume_cache_dir . DIRECTORY_SEPARATOR . md5($options["fb_linkedin_resume_url"]), "w");
-    if (!$fp) {
-        wp_die(
-            "FB Linkedin Resume: unable to create files in the " . fb_linkedin_resume_cache_dir . " directory"
-        );
-    }
-    fwrite($fp, $linkedin_html["body"]);
-    fclose($fp);
-    // finished save to cache
-
+    fb_linkedin_save_cache($options, $linkedin_html);
     return $dom;
 }
 
@@ -582,9 +564,17 @@ function fb_linkedin_resume_display_admin_page()
     }
     $options = fb_linkedin_resume_get_admin_options();
 
+    $cache_warning = null;
+    if (!fb_linkedin_create_cache_dir()) {
+        $cache_warning = "<p style='color:red;border:1px solid red;padding:10px'>It was not possible to automatically
+        create the \"wp-content/cache/fb_linkedin_resume\" directory, please be sure to create it manually before
+        continuing.</p>";
+    }
+
     echo <<<EOF
 	<div class="wrap">
 		<h2>FB LinkedIn Resume options</h2>
+		$cache_warning
 		<form method="post" action="{$_SERVER["REQUEST_URI"]}">
 			Just complete your LinkedIn profile URL,<br />if you want you can make it language aware using username/language syntax.<br />
 			If you want you can also type your full profile URL.<br /><br />
@@ -597,6 +587,7 @@ function fb_linkedin_resume_display_admin_page()
 			</ul>
 			http://www.linkedin.com/in/<input type="text" name="fb_linkedin_resume_url" value="{$options["fb_linkedin_resume_url"]}" style="width:300px" /><br /><br />
             <br /><br />
+            <h2>Single profile super easy cache</h2>
 			If you have problems with the plugin and you receive an error like "Impossible to download your LinkedIn profile"
 			you should:
 			<ul style="list-style-type: disc; list-style-position:inside;">
@@ -666,5 +657,31 @@ function fb_wp_die($message, $resume_url = null)
 
 function fb_cache_get($resume_url)
 {
-    return file_get_contents(fb_linkedin_resume_cache_dir . DIRECTORY_SEPARATOR . md5($resume_url));
+    return @file_get_contents(fb_linkedin_resume_cache_dir . DIRECTORY_SEPARATOR . md5($resume_url));
+}
+
+function fb_linkedin_create_cache_dir()
+{
+    if (is_dir(fb_linkedin_resume_cache_dir)) return true;
+
+    $check = mkdir(fb_linkedin_resume_cache_dir, 0777, true);
+    if ($check) return true;
+
+    //wp_die("FB Linkedin Resume: unable to create directory " . fb_linkedin_resume_cache_dir);
+    return false;
+}
+
+function fb_linkedin_save_cache($options, $linkedin_html)
+{
+    if (!fb_linkedin_create_cache_dir()) return false;
+
+    $fp = @fopen(fb_linkedin_resume_cache_dir . DIRECTORY_SEPARATOR . md5($options["fb_linkedin_resume_url"]), "w");
+    if (!$fp) {
+        //wp_die("FB Linkedin Resume: unable to create files in the " . fb_linkedin_resume_cache_dir . " directory");
+        return false;
+    }
+    fwrite($fp, $linkedin_html["body"]);
+    fclose($fp);
+
+    return true;
 }

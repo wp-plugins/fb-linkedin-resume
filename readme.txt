@@ -3,8 +3,8 @@ Contributors: Fabrizio Balliano
 Donate link: http://fabrizioballiano.net/fb-linkedin-resume/
 Tags: linkedIn, resume, CV, curriculum vitae, curriculum, vitae
 Requires at least: 2.9.0
-Tested up to: 3.9.0
-Stable tag: 2.9.0
+Tested up to: 3.9.1
+Stable tag: 2.9.1
 
 Publish all your LinkedIn public profile (or just some selected parts)
 on your blog.
@@ -103,6 +103,12 @@ released under the MIT license.
 2. A part of the resulting page
 
 == Changelog ==
+
+= 2.9.1 =
+* some notices/warnings ere removed.
+* cache directory detection was changed to avoid problems with symlinked filesystems.
+* some caching functions were rewritten.
+* a cache dir creation warning was added to the admin config panel
 
 = 2.9.0 =
 * A new cache system was implemented, saving LinkedIn's HTML in the wordpress' cache
