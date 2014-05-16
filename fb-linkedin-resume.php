@@ -3,7 +3,7 @@
 Plugin Name: FB LinkedIn Resume
 Plugin URI: http://fabrizioballiano.net/fb-linkedin-resume
 Description: Publish all your LinkedIn public profile (or just some selected parts) on your blog.
-Version: 2.9.1
+Version: 2.9.2
 Author: Fabrizio Balliano
 Author URI: http://fabrizioballiano.net
 */
@@ -26,7 +26,7 @@ Author URI: http://fabrizioballiano.net
 */
 
 define("fb_linkedin_resume_path", WP_PLUGIN_URL . "/" . str_replace(basename(__FILE__), "", plugin_basename(__FILE__)));
-define("fb_linkedin_resume_version", "2.9.0");
+define("fb_linkedin_resume_version", "2.9.2");
 define("fb_linkedin_resume_cache_dir", dirname(
         dirname(dirname(realpath(__FILE__)))
     ) . DIRECTORY_SEPARATOR . "cache" . DIRECTORY_SEPARATOR . "fb_linkedin_resume");
@@ -73,7 +73,8 @@ function fb_linkedin_resume_get_resume($params)
         }
     } else {
         $wp_remote_get_args = array(
-            "user-agent" => "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/21.0.1180.89 Safari/537.1"
+            "user-agent" => "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/21.0.1180.89 Safari/537.1",
+			"sslverify" => false
         );
 
         if (isset($params["user"])) {
@@ -104,6 +105,7 @@ function fb_linkedin_resume_get_resume($params)
             return $GLOBALS["__fb_linkedin_resume_cache"][$options["fb_linkedin_resume_url"]];
         }
 
+		$options["fb_linkedin_resume_url"] = preg_replace("/^https:/i", "http:", $options["fb_linkedin_resume_url"]);
         $linkedin_html = wp_remote_get($options["fb_linkedin_resume_url"], $wp_remote_get_args);
         if (is_wp_error($linkedin_html)) {
             $errors = $linkedin_html->get_error_messages();
