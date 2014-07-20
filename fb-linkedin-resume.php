@@ -3,7 +3,7 @@
 Plugin Name: FB LinkedIn Resume
 Plugin URI: http://fabrizioballiano.net/fb-linkedin-resume
 Description: Publish all your LinkedIn public profile (or just some selected parts) on your blog.
-Version: 2.9.2
+Version: 2.9.3
 Author: Fabrizio Balliano
 Author URI: http://fabrizioballiano.net
 */
@@ -26,7 +26,7 @@ Author URI: http://fabrizioballiano.net
 */
 
 define("fb_linkedin_resume_path", WP_PLUGIN_URL . "/" . str_replace(basename(__FILE__), "", plugin_basename(__FILE__)));
-define("fb_linkedin_resume_version", "2.9.2");
+define("fb_linkedin_resume_version", "2.9.3");
 define("fb_linkedin_resume_cache_dir", dirname(
         dirname(dirname(realpath(__FILE__)))
     ) . DIRECTORY_SEPARATOR . "cache" . DIRECTORY_SEPARATOR . "fb_linkedin_resume");
@@ -67,45 +67,35 @@ function fb_linkedin_resume_get_resume($params)
         $header = $dom->find(".profile-header");
         $header = $header[0];
         if (!$header) {
-            wp_die(
-                "FB LinkedIn resume has been configured to use the cached LinkedIn HTML (configured via plugin settings) but the provided HTML is not valid (it has to be copied without being logged in)."
-            );
+            wp_die("FB LinkedIn resume has been configured to use the cached LinkedIn HTML (configured via plugin settings) but the provided HTML is not valid (it has to be copied without being logged in).");
         }
     } else {
         $wp_remote_get_args = array(
-            "user-agent" => "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/21.0.1180.89 Safari/537.1",
-			"sslverify" => false
+            "user-agent" => "Mozilla/5.0 (Windows NT 5.1; rv:31.0) Gecko/20100101 Firefox/31.0",
+			"sslverify" => false,
+            "headers" => array(
+                "Accept" => "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+                "Accept-Language" => "en"
+            )
         );
 
-        if (isset($params["user"])) {
-            $tmp_lang = explode("/", $options["fb_linkedin_resume_url"]);
-            if (isset($tmp_lang[1])) {
-                $tmp_lang = $tmp_lang[1];
-            } else {
-                unset($tmp_lang);
-            }
-
-            $options["fb_linkedin_resume_url"] = $params["user"];
-            if (isset($tmp_lang)) {
-                $options["fb_linkedin_resume_url"] .= "/$tmp_lang";
-            }
-        }
-
+        if (isset($params["user"])) $options["fb_linkedin_resume_url"] = $params["user"];
         if (isset($params["lang"])) {
-            $wp_remote_get_args["headers"] = array("accept-language" => $params["lang"]);
-            $options["fb_linkedin_resume_url"] = explode("/", $options["fb_linkedin_resume_url"]);
-            $options["fb_linkedin_resume_url"] = "{$options["fb_linkedin_resume_url"][0]}/{$params["lang"]}";
+            $wp_remote_get_args["headers"]["Accept-Language"] = $params["lang"];
+            $options["fb_linkedin_resume_url"] .= "/{$params["lang"]}";
         }
 
         if (strtolower(substr($options["fb_linkedin_resume_url"], 0, 4)) != "http") {
             $options["fb_linkedin_resume_url"] = "http://www.linkedin.com/in/{$options["fb_linkedin_resume_url"]}";
         }
 
+        $options["fb_linkedin_resume_url"] = trim($options["fb_linkedin_resume_url"]);
+        $options["fb_linkedin_resume_url"] = trim($options["fb_linkedin_resume_url"], "/");
+        $options["fb_linkedin_resume_url"] = preg_replace("/^https:/i", "http:", $options["fb_linkedin_resume_url"]);
         if (isset($GLOBALS["__fb_linkedin_resume_cache"]) and isset($GLOBALS["__fb_linkedin_resume_cache"][$options["fb_linkedin_resume_url"]])) {
             return $GLOBALS["__fb_linkedin_resume_cache"][$options["fb_linkedin_resume_url"]];
         }
 
-		$options["fb_linkedin_resume_url"] = preg_replace("/^https:/i", "http:", $options["fb_linkedin_resume_url"]);
         $linkedin_html = wp_remote_get($options["fb_linkedin_resume_url"], $wp_remote_get_args);
         if (is_wp_error($linkedin_html)) {
             $errors = $linkedin_html->get_error_messages();
