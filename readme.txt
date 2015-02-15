@@ -76,7 +76,11 @@ Notes:
 
 == Upgrade Notice ==
 
-There should be no problems during future upgrades.
+= 2.* to 3.0.0 =
+
+If you've the new LinkedIn profile active then be careful when updating, all the CSS are different and you
+will need to rework your CSS at least a bit. I've tried to make everything as general as possible but you'll
+need to check it.
 
 == Frequently Asked Questions ==
 
@@ -113,6 +117,11 @@ released under the MIT license.
 2. A part of the resulting page
 
 == Changelog ==
+
+= 3.0.0 =
+* major rewrite
+* support for new LinkedIn profiles
+* added shortcode for "honors"
 
 = 2.9.3 =
 * Small tweaks and refinements.
