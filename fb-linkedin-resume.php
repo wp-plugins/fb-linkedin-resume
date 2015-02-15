@@ -3,13 +3,13 @@
 Plugin Name: FB LinkedIn Resume
 Plugin URI: http://fabrizioballiano.net/fb-linkedin-resume
 Description: Publish all your LinkedIn public profile (or just some selected parts) on your blog.
-Version: 2.9.3
+Version: 3.0.0
 Author: Fabrizio Balliano
 Author URI: http://fabrizioballiano.net
 */
 
 
-/*  Copyright 2011-2014 Fabrizio Balliano (email: fabrizio@fabrizioballiano.it)
+/*  Copyright 2011-2015 Fabrizio Balliano (email: fabrizio@fabrizioballiano.it)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License, version 2, as 
@@ -26,7 +26,7 @@ Author URI: http://fabrizioballiano.net
 */
 
 define("fb_linkedin_resume_path", WP_PLUGIN_URL . "/" . str_replace(basename(__FILE__), "", plugin_basename(__FILE__)));
-define("fb_linkedin_resume_version", "2.9.3");
+define("fb_linkedin_resume_version", "3.0.0");
 define("fb_linkedin_resume_cache_dir", dirname(
         dirname(dirname(realpath(__FILE__)))
     ) . DIRECTORY_SEPARATOR . "cache" . DIRECTORY_SEPARATOR . "fb_linkedin_resume");
@@ -45,6 +45,7 @@ add_shortcode("fb_linkedin_resume_courses", "fb_linkedin_resume_courses");
 add_shortcode("fb_linkedin_resume_organizations", "fb_linkedin_resume_organizations");
 add_shortcode("fb_linkedin_resume_additional", "fb_linkedin_resume_additional");
 add_shortcode("fb_linkedin_resume_projects", "fb_linkedin_resume_projects");
+add_shortcode("fb_linkedin_resume_honors", "fb_linkedin_resume_honors");
 
 add_action("admin_menu", "fb_linkedin_resume_admin");
 
@@ -64,8 +65,7 @@ function fb_linkedin_resume_get_resume($params)
         $dom = str_get_html($options["fb_linkedin_resume_source"]);
 
         // check if it's the right page
-        $header = $dom->find(".profile-header");
-        $header = $header[0];
+        $header = $dom->find(".profile-header,.profile-card", 0);
         if (!$header) {
             wp_die("FB LinkedIn resume has been configured to use the cached LinkedIn HTML (configured via plugin settings) but the provided HTML is not valid (it has to be copied without being logged in).");
         }
@@ -129,46 +129,26 @@ function fb_linkedin_resume_get_resume($params)
         }
     }
 
-    // removing linkedin links from header
-    foreach ($dom->find(".profile-header .join-linkedin") as $tmp) {
+    // cleaning old profile html
+    foreach ($dom->find(".profile-header .join-linkedin,#profile-additional .pubgroups,.showhide-link,.see-more-less,.company-profile-public,.overview-connections,.profile-header .section-title,script") as $tmp) {
         $tmp->outertext = "";
     }
 
-    // removing groups
-    foreach ($dom->find("#profile-additional .pubgroups") as $tmp) {
-        $tmp->outertext = "";
-    }
-
-    // removing links
-    foreach ($dom->find(".showhide-link") as $tmp) {
-        $tmp->outertext = "";
-    }
-    foreach ($dom->find(".see-more-less") as $tmp) {
-        $tmp->outertext = "";
-    }
-    foreach ($dom->find(".company-profile-public") as $tmp) {
-        $tmp->outertext = $tmp->innertext;
-    }
-
-    // removing connections
-    foreach ($dom->find(".overview-connections") as $tmp) {
-        $tmp->outertext = "";
-    }
     foreach ($dom->find(".profile-header dt") as $tmp) {
         if (strtolower(trim($tmp->innertext)) == "connections") {
             $tmp->outertext = "";
         }
     }
 
-    // removing "overview" title
-    foreach ($dom->find(".profile-header .section-title") as $tmp) {
+    // cleaning 2015 profile html
+    foreach ($dom->find(".profile-card .profile-aux,#signup-link-tile-bg,#signup-link-tile,#overview-recommendation-count,.external-link-indicator,h5.experience-logo,h5.certification-logo,dl.associated-list") as $tmp) {
         $tmp->outertext = "";
     }
 
-    $name = $dom->find(".given-name");
-    $name = $name[0]->innertext;
-    $surname = $dom->find(".family-name");
-    $surname = $surname[0]->innertext;
+    $name = $dom->find(".given-name", 0);
+    $name = $name->innertext;
+    $surname = $dom->find(".family-name", 0);
+    $surname = $surname->innertext;
 
     // removing all "fullname's " (only works with english)
     foreach ($dom->find("h2") as $tmp) {
@@ -180,6 +160,8 @@ function fb_linkedin_resume_get_resume($params)
         $tmp->innertext = trim($tmp->innertext);
     }
 
+    $GLOBALS["__fb_linkedin_resume_profile_version"] = "old";
+    if ($dom->find(".profile-card", 0)) $GLOBALS["__fb_linkedin_resume_profile_version"] = "2015";
 
     $GLOBALS["__fb_linkedin_resume_cache"][$options["fb_linkedin_resume_url"]] = $dom;
     fb_linkedin_save_cache($options, $linkedin_html);
@@ -214,13 +196,17 @@ function fb_linkedin_resume_header($params)
     wp_print_styles("fb_linkedin_resume");
 
     $resume = fb_linkedin_resume_get_resume($params);
-    $header = $resume->find(".profile-header");
-    $header = $header[0];
+    $header = $resume->find(".profile-header,.profile-card", 0);
 
     foreach ($header->find("dd.websites a") as $link) {
         $link->href = "http://www.linkedin.com{$link->href}";
     }
 
+    foreach ($header->find("th") as $th) {
+        $th->innertext = $th->plaintext;
+    }
+
+    if ($GLOBALS["__fb_linkedin_resume_profile_version"] == "2015") return "<div class='public-profile'><div id='background'>$header</div></div>";
     return $header;
 }
 
@@ -236,16 +222,17 @@ function fb_linkedin_resume_summary($params)
     wp_print_styles("fb_linkedin_resume");
 
     $resume = fb_linkedin_resume_get_resume($params);
-    $summary = $resume->find("#profile-summary");
+    $summary = $resume->find("#profile-summary,#background-summary", 0);
     if (empty($summary)) {
         return "";
     }
 
-    $summary = $summary[0];
     if (isset($params["title"])) {
-        $h2 = $summary->find("h2");
-        $h2[0]->innertext = $params["title"];
+        $h2 = $summary->find("h2,h3", 0);
+        $h2->innertext = $params["title"];
     }
+
+    if ($GLOBALS["__fb_linkedin_resume_profile_version"] == "2015") return "<div class='public-profile'><div id='background'>$summary</div></div>";
     return $summary;
 }
 
@@ -261,16 +248,17 @@ function fb_linkedin_resume_experience($params)
     wp_print_styles("fb_linkedin_resume");
 
     $resume = fb_linkedin_resume_get_resume($params);
-    $experience = $resume->find("#profile-experience");
+    $experience = $resume->find("#profile-experience,#background-experience", 0);
     if (empty($experience)) {
         return "";
     }
 
-    $experience = $experience[0];
     if (isset($params["title"])) {
-        $h2 = $experience->find("h2");
-        $h2[0]->innertext = $params["title"];
+        $h2 = $experience->find("h2,h3", 0);
+        $h2->innertext = $params["title"];
     }
+
+    if ($GLOBALS["__fb_linkedin_resume_profile_version"] == "2015") return "<div class='public-profile'><div id='background'>$experience</div></div>";
     return $experience;
 }
 
@@ -286,16 +274,17 @@ function fb_linkedin_resume_education($params)
     wp_print_styles("fb_linkedin_resume");
 
     $resume = fb_linkedin_resume_get_resume($params);
-    $education = $resume->find("#profile-education");
+    $education = $resume->find("#background-education,#profile-education", 0);
     if (empty($education)) {
         return "";
     }
 
-    $education = $education[0];
     if (isset($params["title"])) {
-        $h2 = $education->find("h2");
-        $h2[0]->innertext = $params["title"];
+        $h2 = $education->find("h2,h3", 0);
+        $h2->innertext = $params["title"];
     }
+
+    if ($GLOBALS["__fb_linkedin_resume_profile_version"] == "2015") return "<div class='public-profile'><div id='background'>$education</div></div>";
     return $education;
 }
 
@@ -311,16 +300,17 @@ function fb_linkedin_resume_courses($params)
     wp_print_styles("fb_linkedin_resume");
 
     $resume = fb_linkedin_resume_get_resume($params);
-    $education = $resume->find("#profile-courses");
+    $education = $resume->find("#background-courses,#profile-courses", 0);
     if (empty($education)) {
         return "";
     }
 
-    $education = $education[0];
     if (isset($params["title"])) {
-        $h2 = $education->find("h2");
-        $h2[0]->innertext = $params["title"];
+        $h2 = $education->find("h2,h3", 0);
+        $h2->innertext = $params["title"];
     }
+
+    if ($GLOBALS["__fb_linkedin_resume_profile_version"] == "2015") return "<div class='public-profile'><div id='background'>$education</div></div>";
     return $education;
 }
 
@@ -336,16 +326,17 @@ function fb_linkedin_resume_organizations($params)
     wp_print_styles("fb_linkedin_resume");
 
     $resume = fb_linkedin_resume_get_resume($params);
-    $education = $resume->find("#profile-organizations");
+    $education = $resume->find("#background-organizations,#profile-organizations", 0);
     if (empty($education)) {
         return "";
     }
 
-    $education = $education[0];
     if (isset($params["title"])) {
-        $h2 = $education->find("h2");
-        $h2[0]->innertext = $params["title"];
+        $h2 = $education->find("h2,h3", 0);
+        $h2->innertext = $params["title"];
     }
+
+    if ($GLOBALS["__fb_linkedin_resume_profile_version"] == "2015") return "<div class='public-profile'><div id='background'>$education</div></div>";
     return $education;
 }
 
@@ -361,16 +352,17 @@ function fb_linkedin_resume_certifications($params)
     wp_print_styles("fb_linkedin_resume");
 
     $resume = fb_linkedin_resume_get_resume($params);
-    $certifications = $resume->find("#profile-certifications");
+    $certifications = $resume->find("#profile-certifications,#background-certifications", 0);
     if (empty($certifications)) {
         return "";
     }
 
-    $certifications = $certifications[0];
     if (isset($params["title"])) {
-        $h2 = $certifications->find("h2");
-        $h2[0]->innertext = $params["title"];
+        $h2 = $certifications->find("h2,h3", 0);
+        $h2->innertext = $params["title"];
     }
+
+    if ($GLOBALS["__fb_linkedin_resume_profile_version"] == "2015") return "<div class='public-profile'><div id='background'>$certifications</div></div>";
     return $certifications;
 }
 
@@ -386,32 +378,40 @@ function fb_linkedin_resume_skills($params)
     wp_print_styles("fb_linkedin_resume");
 
     $resume = fb_linkedin_resume_get_resume($params);
-    $skills = $resume->find("#profile-skills");
+    $skills = $resume->find("#background-skills,#profile-skills", 0);
     if (empty($skills)) {
         return "";
     }
 
-    $skills = $skills[0];
+    $resume->find("#see-more-less-skill", 0)->outertext = "";
+
     if (isset($params["title"])) {
-        $h2 = $skills->find("h2");
-        $h2[0]->innertext = $params["title"];
+        $h2 = $skills->find("h2,h3", 0);
+        $h2->innertext = $params["title"];
     }
 
-    foreach ($skills->find("li span") as $link) {
-        $classes = explode(" ", (string)$link->class);
-        foreach ($classes as $class) {
-            $matches = array();
-            if (preg_match("/proficiency=(.*)$/", $class, $matches)) {
-                $proficiency = urldecode($matches[1]);
-                $proficiency = trim(preg_replace("/^.*:/", "", $proficiency));
+    foreach ($skills->find("li.extra-skill") as $link) {
+        $link->class = str_replace("extra-skill", "", $link->class);
+    }
+
+    if ($GLOBALS["__fb_linkedin_resume_profile_version"] == "old") {
+        foreach ($skills->find("li span") as $link) {
+            $classes = explode(" ", (string)$link->class);
+            foreach ($classes as $class) {
+                $matches = array();
+                if (preg_match("/proficiency=(.*)$/", $class, $matches)) {
+                    $proficiency = urldecode($matches[1]);
+                    $proficiency = trim(preg_replace("/^.*:/", "", $proficiency));
+                }
             }
-        }
 
-        $link->class = null;
-        $link->title = $proficiency;
-        $link->innertext = $link->plaintext;
+            $link->class = null;
+            $link->title = $proficiency;
+            $link->innertext = $link->plaintext;
+        }
     }
 
+    if ($GLOBALS["__fb_linkedin_resume_profile_version"] == "2015") return "<div class='public-profile'><div id='background'>$skills</div></div>";
     return $skills;
 }
 
@@ -427,15 +427,14 @@ function fb_linkedin_resume_publications($params)
     wp_print_styles("fb_linkedin_resume");
 
     $resume = fb_linkedin_resume_get_resume($params);
-    $publications = $resume->find("#profile-publications");
+    $publications = $resume->find("#background-publications,#profile-publications", 0);
     if (empty($publications)) {
         return "";
     }
 
-    $publications = $publications[0];
     if (isset($params["title"])) {
-        $h2 = $publications->find("h2");
-        $h2[0]->innertext = $params["title"];
+        $h2 = $publications->find("h2,h3", 0);
+        $h2->innertext = $params["title"];
     }
 
     foreach ($publications->find("li.publication a") as $link) {
@@ -446,10 +445,7 @@ function fb_linkedin_resume_publications($params)
         $link->outertext = $link->plaintext;
     }
 
-    foreach ($publications->find("div.summary script") as $script) {
-        $script->outertext = "";
-    }
-
+    if ($GLOBALS["__fb_linkedin_resume_profile_version"] == "2015") return "<div class='public-profile'><div id='background'>$publications</div></div>";
     return $publications;
 }
 
@@ -465,17 +461,44 @@ function fb_linkedin_resume_languages($params)
     wp_print_styles("fb_linkedin_resume");
 
     $resume = fb_linkedin_resume_get_resume($params);
-    $languages = $resume->find("#profile-languages");
+    $languages = $resume->find("#background-languages,#profile-languages", 0);
     if (empty($languages)) {
         return "";
     }
 
-    $languages = $languages[0];
     if (isset($params["title"])) {
-        $h2 = $languages->find("h2");
-        $h2[0]->innertext = $params["title"];
+        $h2 = $languages->find("h2,h3", 0);
+        $h2->innertext = $params["title"];
     }
+
+    if ($GLOBALS["__fb_linkedin_resume_profile_version"] == "2015") return "<div class='public-profile'><div id='background'>$languages</div></div>";
     return $languages;
+}
+
+function fb_linkedin_resume_honors($params)
+{
+    wp_register_style(
+        "fb_linkedin_resume",
+        fb_linkedin_resume_path . "style.css",
+        false,
+        fb_linkedin_resume_version,
+        "all"
+    );
+    wp_print_styles("fb_linkedin_resume");
+
+    $resume = fb_linkedin_resume_get_resume($params);
+    $honors = $resume->find("#background-honors", 0);
+    if (empty($honors)) {
+        return "";
+    }
+
+    if (isset($params["title"])) {
+        $h2 = $honors->find("h2,h3", 0);
+        $h2->innertext = $params["title"];
+    }
+
+    if ($GLOBALS["__fb_linkedin_resume_profile_version"] == "2015") return "<div class='public-profile'><div id='background'>$honors</div></div>";
+    return $honors;
 }
 
 function fb_linkedin_resume_additional($params)
@@ -490,28 +513,28 @@ function fb_linkedin_resume_additional($params)
     wp_print_styles("fb_linkedin_resume");
 
     $resume = fb_linkedin_resume_get_resume($params);
-    $additional = $resume->find("#profile-additional");
+    $additional = $resume->find("#profile-additional", 0);
     if (empty($additional)) {
         return "";
     }
 
-    $additional = $additional[0];
     if (isset($params["title"])) {
-        $h2 = $additional->find("h2");
-        $h2[0]->innertext = $params["title"];
+        $h2 = $additional->find("h2,h3", 0);
+        $h2->innertext = $params["title"];
     }
     if (isset($params["title_interests"])) {
-        $dt = $additional->find("dt.interests");
-        $dt[0]->innertext = $params["title_interests"];
+        $dt = $additional->find("dt.interests", 0);
+        $dt->innertext = $params["title_interests"];
     }
     if (isset($params["title_honors"])) {
-        $dt = $additional->find("dt.honors");
-        $dt[0]->innertext = $params["title_honors"];
+        $dt = $additional->find("dt.honors", 0);
+        $dt->innertext = $params["title_honors"];
     }
     foreach ($additional->find("dd.websites a") as $link) {
         $link->href = "http://www.linkedin.com/{$link->href}";
     }
 
+    if ($GLOBALS["__fb_linkedin_resume_profile_version"] == "2015") return "<div class='public-profile'><div id='background'>$additional</div></div>";
     return $additional;
 }
 
@@ -527,21 +550,21 @@ function fb_linkedin_resume_projects($params)
     wp_print_styles("fb_linkedin_resume");
 
     $resume = fb_linkedin_resume_get_resume($params);
-    $projects = $resume->find("#profile-projects");
+    $projects = $resume->find("#background-projects,#profile-projects", 0);
     if (empty($projects)) {
         return "";
     }
 
-    $projects = $projects[0];
     if (isset($params["title"])) {
-        $h2 = $projects->find("h2");
-        $h2[0]->innertext = $params["title"];
+        $h2 = $projects->find("h2,h3", 0);
+        $h2->innertext = $params["title"];
     }
 
     foreach ($resume->find("div.attribution a") as $link) {
         $link->href = "http://www.linkedin.com{$link->href}";
     }
 
+    if ($GLOBALS["__fb_linkedin_resume_profile_version"] == "2015") return "<div class='public-profile'><div id='background'>$projects</div></div>";
     return $projects;
 }
 

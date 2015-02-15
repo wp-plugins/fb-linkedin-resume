@@ -2,6 +2,7 @@
 html > body .entry ul {text-indent: 0;}
 html > body .entry li {margin-left: 0;}
 
+/* OLD PROFILE */
 .profile-header{background-color:#ddf0f8;padding:15px;min-height:90px;margin:0 0 15px;}
 .profile-header h1{margin:0 0 4px;padding:0;font-size:180%;border:none;}
 .profile-header .image{float:left;margin:0 10px 10px 0;}
@@ -65,3 +66,124 @@ ul.documents .specifics li::before, .draggable ul.documents .specifics li::befor
 #profile-courses li.course-group {border-top: 1px dotted #666;list-style:none;padding:15px 0 0;margin:0 0 15px}
 #profile-courses li.course-group:first-child {border: none; padding-top: 0}
 #profile-courses ul.courses .occupation {font-size:130%}
+
+/* 2015 PROFILE */
+
+.profile-card h1, .profile-card #headline p {margin-top: 0; margin-bottom: 0}
+.profile-card td ol, .profile-card td ul {list-style: none inside; margin: 0}
+.profile-card .profile-picture {
+    position: relative;
+    z-index: 1;
+    background: #f4f4f4;
+    float: left;
+    width: 200px;
+    height: 200px;
+    line-height: 199px;
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+.profile-card .profile-overview {
+    position: relative;
+    z-index: 6;
+    float: right;
+    width: 405px;
+    word-wrap: break-word;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 0px;
+    padding-bottom: 20px;
+}
+.profile-card #location dl {margin-left: 0}
+.profile-card #demographics dt {
+    display: none;
+}
+.profile-card #demographics dl, .profile-card #demographics dd {
+    display: inline;
+}
+.profile-card table, .profile-card th, .profile-card td {
+    border: none;
+}
+.profile-card #demographics dl.industry, .profile-card #demographics dd.industry {
+    border-left: 1px solid #bbb;
+    padding: 0 0 0 8px;
+    margin: 0 0 0 5px;
+}
+.compact-view .endorse-item {
+    display: -moz-inline-stack;
+    display: inline-block;
+    vertical-align: middle;
+    zoom: 1;
+    margin-top: 0px;
+    margin-bottom: 5px;
+    margin-left: 0px;
+    margin-right: 5px;
+}
+.endorse-item {
+    margin-top: 0px;
+    margin-bottom: 6px;
+    overflow: hidden;
+}
+ul.skills-section {margin-left: 0}
+.skills-section.compact-view .skill-pill {
+    float: left;
+}
+.skills-section .skill-pill {
+    float: left;
+    margin-top: 2px;
+    margin-bottom: 0px;
+}
+.skill-pill {
+    display: -moz-inline-stack;
+    display: inline-block;
+    vertical-align: middle;
+    zoom: 1;
+    overflow: hidden;
+    cursor: default;
+    white-space: nowrap;
+}
+.skill-pill .endorse-count, .skill-pill .endorse-item-name {
+    float: left;
+    line-height: 24px;
+}
+.endorse-item-name {
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-left: 13px;
+    padding-right: 13px;
+    font-size: 13px;
+    line-height: 17px;
+    color: #333;
+    font-weight: normal;
+    background-color: #f0f0f0;
+    position: relative;
+    border-bottom: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    -ms-border-radius: 3px;
+    -o-border-radius: 3px;
+    border-radius: 3px;
+}
+
+#background-experience h4, #background-experience h5 {margin: 0}
+
+#background-languages h4 {margin-bottom: 0}
+#background-languages ol {list-style: none inside; margin-left: 0}
+
+#background-education h5 {margin: 0; font-weight: normal}
+
+#background-organizations h4, #background-organizations h5 {margin: 0}
+#background-organizations div.section-item {margin-top: 1em}
+
+#background-projects h4 {margin: 0}
+
+#background-publications h4, #background-publications h5 {margin: 0; font-weight: normal}
+#background-publications div.section-item {margin-top: 1em}
+
+#background-certifications h4, #background-certifications h5 {margin: 0}
+#background-certifications h5 {font-weight: normal}
+#background-certifications div.section-item {margin-top: 1em}
+
+#background-honors h4, #background-honors h5 {margin: 0}

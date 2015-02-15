@@ -3,8 +3,8 @@ Contributors: Fabrizio Balliano
 Donate link: http://fabrizioballiano.net/fb-linkedin-resume/
 Tags: linkedIn, resume, CV, curriculum vitae, curriculum, vitae
 Requires at least: 2.9.0
-Tested up to: 3.9.1
-Stable tag: 2.9.3
+Tested up to: 4.1
+Stable tag: 3.0.0
 
 Publish all your LinkedIn public profile (or just some selected parts)
 on your blog.
@@ -42,7 +42,8 @@ Supported shortcodes:
 * fb_linkedin_resume_courses: prints the "courses" section.
 * fb_linkedin_resume_organizations: prints the "organizations" section.
 * fb_linkedin_resume_projects: prints the "projects" section.
-* fb_linkedin_resume_additional: prints the "additional" section.
+* fb_linkedin_resume_additional: prints the "additional" section (deprecated, only works with LinkedIn's old profiles).
+* fb_linkedin_resume_honors: prints the "honors" section.
 
 Every shortcode accept a "user" parameter that will allow you to override
 default profile username (also if set in the plugin options) thus you can
